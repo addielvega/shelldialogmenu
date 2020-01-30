@@ -1,0 +1,51 @@
+#!/bin/bash
+#Title: Menu using dialog package
+#Addiel Vega
+#Date:1/29/2020
+#Description:Simple menu using the dialog package to make graphical dialog boxes
+
+temp=$(mktemp -t test.XXXXXX)                                   #temporary variables
+temp2=$(mktemp -t test2.XXXXXX)
+
+function diskspace {                                            #func. diskspace to display space on disk
+  df -k > $temp
+  dialog --textbox $temp 20 26                                  #dialog text box, height: 20 by width: 60
+}
+
+function whoson {                                               #func. to display who is logged on
+  who > $temp
+  dialog --textbox $temp 20 50
+}
+
+function memusage {                                             #func. to display current memory usage
+  cat /proc/meminfo > $temp
+  dialog --textbox $temp 20 50
+}
+
+while [ 1 ]                                                     #while loop with a const. true value to create a enless loop
+do
+
+dialog --menu "System Admin Menu" 20 30 10 1 "Display disk space" 2 "Display users" 3 "Display memory usage" 0 "Exit" 2> $temp2
+if [ $? -eq 1 ]                                                 #If exit stauts equals 1
+then
+  break                                                         #Exits the program
+fi
+
+selection=$(cat $temp2)
+
+case $selection in
+1)
+  diskspace;;
+2)
+  whoson;;
+3)
+  memusage;;
+0)
+  break;;
+*)
+  dialog --msgbox "Wrong selection" 10 30
+esac
+done
+
+rm -f $temp 2> /dev/null
+rm -f $temp2 2> /dev/null
